@@ -1,0 +1,29 @@
+[polyscope] Backend: openGL3_glfw -- Loaded openGL version: 4.6 (Core Profile) Mesa 26.2.6-arch1.1
+malla | metodo | borde | degen | degen en el borde | anillo minimo | flips | conf_med | area_mean
+nefertiti | uniform | circle | 0 | 0 | - | 0 | 1.538 | 0.580
+nefertiti | uniform | square | 0 | 0 | - | 0 | 1.670 | 0.587
+nefertiti | uniform | bulged_square | 0 | 0 | - | 0 | 1.640 | 0.586
+nefertiti | harmonic | circle | 0 | 0 | - | 0 | 1.144 | 0.202
+nefertiti | harmonic | square | 0 | 0 | - | 0 | 1.360 | 0.224
+nefertiti | harmonic | bulged_square | 0 | 0 | - | 0 | 1.310 | 0.216
+nefertiti | meanvalue | circle | 0 | 0 | - | 0 | 1.165 | 0.178
+nefertiti | meanvalue | square | 0 | 0 | - | 0 | 1.354 | 0.227
+nefertiti | meanvalue | bulged_square | 0 | 0 | - | 0 | 1.310 | 0.215
+bunny | uniform | circle | 0 | 0 | - | 0 | 1.770 | 4.092
+bunny | uniform | square | 4 | 4 | 0 | 0 | 1.885 | 4.075
+bunny | uniform | bulged_square | 0 | 0 | - | 0 | 1.857 | 4.078
+bunny | harmonic | circle | 0 | 0 | - | 0 | 1.191 | 6.037
+bunny | harmonic | square | 4 | 4 | 0 | 0 | 1.274 | 6.023
+bunny | harmonic | bulged_square | 0 | 0 | - | 0 | 1.261 | 6.025
+bunny | meanvalue | circle | 0 | 0 | - | 0 | 1.268 | 4.629
+bunny | meanvalue | square | 4 | 4 | 0 | 0 | 1.409 | 4.616
+bunny | meanvalue | bulged_square | 0 | 0 | - | 0 | 1.378 | 4.618
+lucy | uniform | circle | 184 | 0 | 54 | 0 | 2.042 | 6.815
+lucy | uniform | square | 202 | 23 | 0 | 0 | 2.110 | 6.787
+lucy | uniform | bulged_square | 179 | 0 | 54 | 0 | 2.078 | 6.788
+lucy | harmonic | circle | 1418 | 0 | 44 | 1 | 1.262 | 7.594
+lucy | harmonic | square | 1442 | 23 | 0 | 1 | 1.394 | 7.560
+lucy | harmonic | bulged_square | 1419 | 0 | 44 | 1 | 1.341 | 7.560
+lucy | meanvalue | circle | 978 | 0 | 49 | 0 | 1.402 | 6.740
+lucy | meanvalue | square | 1008 | 23 | 0 | 0 | 1.403 | 6.701
+lucy | meanvalue | bulged_square | 983 | 0 | 49 | 0 | 1.378 | 6.704

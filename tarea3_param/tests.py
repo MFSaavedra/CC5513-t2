@@ -21,7 +21,7 @@ import sys
 
 import numpy as np
 
-from boundary import polygon_points, square_corners, star_corners
+from boundary import map_boundary, polygon_points, square_corners, star_corners
 from distortion import distortion_report, jacobians
 from laplacians import (WEIGHTS, count_negative_weights, laplacian_from_weights)
 from mesh_io import read_off
@@ -106,6 +106,46 @@ def t_polygon():
     return e1 < 1e-12 and e2 < 1e-12, "error cuadrado = %.1e, error esquinas estrella (%d) = %.1e" % (e1, k, e2)
 
 
+def t_hexagon_values():
+    # Abanico regular: vértice 0 en el centro y 6 vecinos en el círculo unitario.
+    # Todos los ángulos miden 60 grados, así que en el centro:
+    #   cotangente:  D_0j = 1/2 (cot 60 + cot 60) = cot 60 = 0.5774
+    #   valor medio: D_0j = (tan 30 + tan 30) / 1    = 1.1547
+    ang = np.arange(6) * np.pi / 3
+    V = np.vstack([[0, 0, 0], np.column_stack([np.cos(ang), np.sin(ang), np.zeros(6)])])
+    F = np.array([[0, 1 + k, 1 + (k + 1) % 6] for k in range(6)])
+    cot = WEIGHTS["harmonic"](V, F).toarray()[0, 1:]
+    mv = WEIGHTS["meanvalue"](V, F).toarray()[0, 1:]
+    ok = np.allclose(cot, 1 / np.sqrt(3)) and np.allclose(mv, 2 * np.tan(np.pi / 6))
+    return ok, "cot = %.4f (esperado 0.5774), mean value = %.4f (esperado 1.1547)" % (
+        cot.mean(), mv.mean())
+
+
+def t_polygon_rectangle():
+    # Rectángulo 2 x 1 (perímetro 6): t = s / 6 está a distancia s de la esquina 0.
+    # Un t = 1 da la vuelta completa y vuelve a la esquina 0.
+    rect = np.array([[0, 0], [2, 0], [2, 1], [0, 1]], float)
+    P = polygon_points(np.array([0, 1 / 6, 2.5 / 6, 4 / 6, 1.0]), rect)
+    exp = np.array([[0, 0], [1, 0], [2, 0.5], [1, 1], [0, 0]], float)
+    err = np.abs(P - exp).max()
+    return err < 1e-12 and P.shape == (5, 2), "error = %.1e, forma %s" % (err, P.shape)
+
+
+def t_bulged_square():
+    # Bonus B1: el cuadrado abombado no deja triángulos degenerados en Bunny
+    V, F = read_off(os.path.join(HERE, "data", "bunny.off"))
+    loop = boundary_loop(F)
+    degen = {}
+    for shape in ("square", "bulged_square"):
+        uv_b = map_boundary(V, loop, shape, "arc")
+        L = laplacian_from_weights(WEIGHTS["meanvalue"](V, F))
+        _, summ = distortion_report(V, F, solve_fixed_boundary(L, loop, uv_b))
+        degen[shape] = (summ["degen"], summ["flips"])
+    ok = degen["square"][0] > 0 and degen["bulged_square"] == (0, 0)
+    return ok, "degen square = %d, degen/flips bulged_square = %d/%d" % (
+        degen["square"][0], *degen["bulged_square"])
+
+
 def t_jacobian():
     # Una rotación+escala conocida aplicada a la grilla plana
     th, s = 0.7, 2.5
@@ -164,7 +204,10 @@ if __name__ == "__main__":
     check("1b  mean value: pesos positivos, no simetricos", t_mv_positive)
     check("1b  mean value: reproduccion lineal", t_mv_linear)
     check("--  uniforme NO reproduce (control)", t_uniform_not_linear)
+    check("1   valores en un abanico regular", t_hexagon_values)
     check("2   polygon_points", t_polygon)
+    check("2   polygon_points en un rectangulo", t_polygon_rectangle)
+    check("B1  cuadrado abombado sin degenerados", t_bulged_square)
     check("--  (dado) jacobianos y metricas", t_jacobian)
     check("--  (dado) LSCM reproduce malla plana [usa 1a]", t_lscm_plane)
     check("--  (dado) LSCM en Nefertiti [usa 1a]", t_lscm_nefertiti)

@@ -64,3 +64,13 @@ pistas de implementación.
 * Los textos del visor no usan tildes a propósito (versiones antiguas de
   Polyscope no dibujan caracteres fuera de ASCII).
 * Si el visor no abre (sin OpenGL), puedes trabajar con `--batch` y `--shot`.
+
+## Entrega
+
+* `laplacians.py` (Parte 1) y `boundary.py` (Parte 2 y bonus B1, forma
+  `"bulged_square"`) están completos; `python tests.py` pasa 12/12 pruebas
+  (se agregaron 3).
+* `experimentos/`: scripts que generan todas las figuras y tablas del informe
+  (ver `experimentos/README.md`); los resultados quedan en
+  `experimentos/resultados/`.
+* El informe está en `../informe/informe.pdf` (fuente: `../informe/informe.tex`).

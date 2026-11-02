@@ -1,0 +1,4 @@
+metodo,error max,conf_med,conf_p95
+uniform,2.50e-02,1.533,2.643
+harmonic,5.38e-14,1.000,1.000
+meanvalue,1.11e-15,1.000,1.000

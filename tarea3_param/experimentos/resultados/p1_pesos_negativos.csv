@@ -1,0 +1,4 @@
+malla,aristas,neg_w (pares),aristas con D<0,interiores alfa+beta>pi,borde alfa>pi/2,triang. obtusos,% obtusos,min peso valor medio
+nefertiti,860,86,43,35,8,149,27%,0.12
+bunny,4572,922,461,459,2,1245,42%,3.67
+lucy,42203,11192,5596,5565,31,13427,48%,5.01

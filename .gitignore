@@ -4,3 +4,12 @@ __pycache__/
 venv/
 .ipynb_checkpoints/
 .DS_Store
+# LaTeX (informe/)
+*.aux
+*.log
+*.fls
+*.fdb_latexmk
+*.out
+# Polyscope (estado de la ventana)
+.polyscope.ini
+imgui.ini

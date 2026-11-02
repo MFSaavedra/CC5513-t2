@@ -1,0 +1,10 @@
+malla,metodo,flips,% a <0.2 de vertice concavo,% a <0.2 de vertice convexo,mediana dist. concavo
+nefertiti,uniform,13,100%,0%,0.092
+nefertiti,harmonic,12,100%,0%,0.070
+nefertiti,meanvalue,14,100%,0%,0.084
+bunny,uniform,41,93%,0%,0.078
+bunny,harmonic,28,100%,0%,0.057
+bunny,meanvalue,27,100%,0%,0.060
+lucy,uniform,272,100%,0%,0.058
+lucy,harmonic,238,98%,0%,0.065
+lucy,meanvalue,158,100%,0%,0.050

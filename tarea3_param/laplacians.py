@@ -64,7 +64,21 @@ def cotangent_weights(V, F):
     corrijas: en la pregunta 1.1 vas a contar cuántos hay.
     """
     n = len(V)
-    raise NotImplementedError("Parte 1a: implementa cotangent_weights")
+    angles = corner_angles(V, F)  # angles[t, c] = ángulo en el vértice F[t, c]
+    rows, cols, vals = [], [], []
+    for c in range(3):
+        # El ángulo en la esquina c es opuesto a la arista (a, b).
+        a = F[:, (c + 1) % 3]
+        b = F[:, (c + 2) % 3]
+        half_cot = 0.5 / np.tan(angles[:, c])
+        # Cada triángulo aporta un término a W[a, b] y el mismo a W[b, a].
+        # Las aristas interiores reciben dos términos (cot alpha y cot beta),
+        # que _sparse_from_triplets suma; las de borde reciben uno solo.
+        rows += [a, b]
+        cols += [b, a]
+        vals += [half_cot, half_cot]
+    return _sparse_from_triplets(np.concatenate(rows), np.concatenate(cols),
+                                 np.concatenate(vals), n)
 
 
 # ---------------------------------------------------------------------------
@@ -83,7 +97,20 @@ def mean_value_weights(V, F):
     ||v_a - v_c||). Recorre las 3 esquinas.
     """
     n = len(V)
-    raise NotImplementedError("Parte 1b: implementa mean_value_weights")
+    angles = corner_angles(V, F)  # angles[t, c] = ángulo en el vértice F[t, c]
+    rows, cols, vals = [], [], []
+    for c in range(3):
+        i = F[:, c]               # vértice donde se mide el ángulo
+        half_tan = np.tan(angles[:, c] / 2)
+        # El ángulo en v_i es uno de los dos ángulos (gamma o delta) de las
+        # aristas (i, j) e (i, k), los dos lados del triángulo que salen de i.
+        for j in (F[:, (c + 1) % 3], F[:, (c + 2) % 3]):
+            length = np.linalg.norm(V[i] - V[j], axis=1)
+            rows.append(i)
+            cols.append(j)
+            vals.append(half_tan / length)
+    return _sparse_from_triplets(np.concatenate(rows), np.concatenate(cols),
+                                 np.concatenate(vals), n)
 
 
 # ---------------------------------------------------------------------------

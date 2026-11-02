@@ -1,0 +1,13 @@
+malla,metodo,mediana log2 area (d<=0.6),mediana log2 area (d>0.6),minimo log2 area,% caras con d>0.6
+nefertiti,uniform,-0.0,-0.4,-1.7,30%
+nefertiti,harmonic,0.0,-0.3,-1.4,30%
+nefertiti,meanvalue,0.0,-0.2,-1.2,30%
+nefertiti,lscm,0.0,-0.3,-1.4,30%
+bunny,uniform,3.2,-6.4,-9.9,27%
+bunny,harmonic,4.7,-10.3,-15.3,27%
+bunny,meanvalue,3.4,-7.7,-11.8,27%
+bunny,lscm,4.7,-10.3,-15.3,27%
+lucy,uniform,5.2,-11.3,-36.8,21%
+lucy,harmonic,5.6,-13.4,-36.4,21%
+lucy,meanvalue,5.0,-11.8,-36.9,21%
+lucy,lscm,5.7,-14.5,-36.7,21%

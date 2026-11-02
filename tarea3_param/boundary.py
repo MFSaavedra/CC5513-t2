@@ -12,6 +12,9 @@ dos pasos:
 
 QUÉ DEBES IMPLEMENTAR AQUÍ (Parte 2)
     - polygon_points
+
+Bonus B1: bulged_square_points, un cuadrado con los lados levemente
+curvados que evita los triángulos degenerados (forma "bulged_square").
 """
 import numpy as np
 
@@ -70,13 +73,50 @@ def polygon_points(t, corners):
     """
     t = np.asarray(t, dtype=np.float64)
     corners = np.asarray(corners, dtype=np.float64)
-    raise NotImplementedError("Parte 2: implementa polygon_points")
+    closed = np.vstack([corners, corners[:1]])                # repite corners[0] al final
+    side = np.linalg.norm(np.diff(closed, axis=0), axis=1)    # largo de cada lado
+    dist = np.concatenate([[0.0], np.cumsum(side)])           # distancia de corners[0] a cada esquina
+    s = (t % 1.0) * dist[-1]                                  # distancia a recorrer, s = t * P
+    # Entre dos esquinas consecutivas la posición es lineal en s.
+    # np.interp busca el lado de cada s (como searchsorted) e interpola en él.
+    x = np.interp(s, dist, closed[:, 0])
+    y = np.interp(s, dist, closed[:, 1])
+    return np.column_stack([x, y])
+
+
+# ---------------------------------------------------------------------------
+# Bonus B1: cuadrado sin triángulos degenerados
+# ---------------------------------------------------------------------------
+def bulged_square_points(t, bulge=0.05):
+    """Cuadrado [-1, 1]^2 con los lados levemente curvados hacia afuera.
+
+    En el cuadrado normal, si los tres vértices de un triángulo caen en el
+    mismo lado quedan colineales y el triángulo es degenerado (pregunta 2.1).
+    Aquí cada punto se desplaza hacia afuera, perpendicular a su lado, en
+    4 * bulge * s * (1 - s), donde s en [0, 1) es su posición dentro del
+    lado: 0 en las esquinas y `bulge` en el centro. Cada lado queda como un
+    arco de parábola, así que la curva es estrictamente convexa y tres puntos
+    del borde nunca son colineales.
+
+    Se usa como forma "bulged_square":
+        parameterize(V, F, "meanvalue", shape="bulged_square")
+    """
+    t = np.asarray(t, dtype=np.float64) % 1.0
+    corners = square_corners()
+    side = np.minimum((4 * t).astype(int), 3)    # lado de cada t (los 4 lados miden lo mismo)
+    s = 4 * t - side                             # posición dentro del lado, en [0, 1)
+    direction = np.roll(corners, -1, axis=0) - corners
+    outward = np.column_stack([direction[:, 1], -direction[:, 0]])  # normal exterior (borde antihorario)
+    outward /= np.linalg.norm(outward, axis=1)[:, None]
+    offset = 4 * bulge * s * (1 - s)
+    return polygon_points(t, corners) + offset[:, None] * outward[side]
 
 
 BOUNDARY_SHAPES = {
     "circle": lambda t: circle_points(t),
     "square": lambda t: polygon_points(t, square_corners()),
     "star": lambda t: polygon_points(t, star_corners()),
+    "bulged_square": lambda t: bulged_square_points(t),   # bonus B1
 }
 
 

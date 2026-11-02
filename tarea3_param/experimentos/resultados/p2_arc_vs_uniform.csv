@@ -1,0 +1,7 @@
+malla,nb,cv largo borde,max/min,metodo,conf_med arc,area_mean arc,conf_borde arc,area_borde arc,conf_med unif,area_mean unif,conf_borde unif,area_borde unif
+nefertiti,34,0.32,3.3,harmonic,1.144,0.202,1.333,0.288,1.205,0.285,1.561,0.386
+nefertiti,34,0.32,3.3,meanvalue,1.165,0.178,1.324,0.276,1.237,0.253,1.532,0.353
+bunny,144,0.26,3.0,harmonic,1.191,6.037,1.472,7.507,1.198,6.050,1.502,7.521
+bunny,144,0.26,3.0,meanvalue,1.268,4.629,1.469,6.411,1.278,4.641,1.491,6.422
+lucy,262,0.41,11.0,harmonic,1.262,7.594,1.861,8.264,1.339,7.632,2.123,8.295
+lucy,262,0.41,11.0,meanvalue,1.402,6.740,1.838,7.719,1.466,6.803,2.055,7.766

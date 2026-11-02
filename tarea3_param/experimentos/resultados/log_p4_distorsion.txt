@@ -1,0 +1,14 @@
+
+== 4.1 Dependencia del sistema local ==
+cambio de sistema | max |J - J'| | max |sigma - sigma'| | caras con igual signo de det
+rotacion al azar | 3.26 | 1.1e-15 | 100%
+rotacion + reflexion | 3.14 | 6.7e-16 | 0%
+  max |det J - area_uv/area_3D| relativo: 3.1e-16
+
+== 4.2 Experimentos controlados (malla plana de tests.py) ==
+mapa | conf_med pred | conf_med medido | area_mean pred | area_mean medido | flips pred | flips medido | conf_p95 medido
+(a) rotacion+escala | 1.000 | 1.000 | 0.000 | 0.000 | 0 | 0 | 1.000
+(b) (3x, y) | 3.000 | 3.000 | 0.000 | 0.000 | 0 | 0 | 3.000
+(c) (x+0.5y, y) | 1.640 | 1.640 | 0.000 | 0.000 | 0 | 0 | 1.640
+(d) (-x, y) | 1.000 | 1.000 | 0.000 | 0.000 | 392 | 0 | 1.000
+(e) z^2 | 1.000 | 1.034 | 0.447 | 0.447 | 0 | 0 | 1.058

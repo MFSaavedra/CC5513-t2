@@ -1,0 +1,4 @@
+escrito /home/lynx/box/dcc/nb_CC5513/t2/tarea3_param/experimentos/resultados/batch_nefertiti.tex
+escrito /home/lynx/box/dcc/nb_CC5513/t2/tarea3_param/experimentos/resultados/batch_bunny.tex
+escrito /home/lynx/box/dcc/nb_CC5513/t2/tarea3_param/experimentos/resultados/batch_lucy.tex
+escrito /home/lynx/box/dcc/nb_CC5513/t2/tarea3_param/experimentos/resultados/tiempos_lucy.tex

@@ -1,0 +1,13 @@
+malla,metodo,conf_med,conf_p95,area_mean,flips,degen,ED/|A|
+nefertiti,uniform,1.538,2.700,0.580,0,0,1.2174
+nefertiti,harmonic,1.144,1.394,0.202,0,0,1.0217
+nefertiti,meanvalue,1.165,1.441,0.178,0,0,1.0234
+nefertiti,lscm,1.038,1.201,0.219,0,0,1.0016
+bunny,uniform,1.770,3.446,4.092,0,0,1.1678
+bunny,harmonic,1.191,1.560,6.037,0,0,1.0270
+bunny,meanvalue,1.268,2.105,4.629,0,0,1.0333
+bunny,lscm,1.152,1.460,6.030,0,0,1.0064
+lucy,uniform,2.042,4.888,6.815,0,184,1.4276
+lucy,harmonic,1.262,1.690,7.594,1,1418,1.0615
+lucy,meanvalue,1.402,2.856,6.740,0,978,1.0733
+lucy,lscm,1.111,1.360,8.028,1,1232,1.0028

@@ -1,0 +1,5 @@
+[polyscope] Backend: openGL3_glfw -- Loaded openGL version: 4.6 (Core Profile) Mesa 26.2.6-arch1.1
+metodo | borde | conf_med | conf_p95 | area_mean | flips | ED/|A|
+lscm | libre | 1.038 | 1.201 | 0.219 | 0 | 1.0016
+harmonic | circle | 1.144 | 1.394 | 0.202 | 0 | 1.0217
+meanvalue | square | 1.354 | 2.472 | 0.227 | 0 | 1.1258

@@ -1,0 +1,22 @@
+
+== 3.1 Borde recorrido al reves de las caras ==
+malla | |UVr - (u,-v)| rel | caras con det<0 | A normal | A invertido | E_C normal | E_C invertido | ED/|A| invertido | flips (report)
+nefertiti | 0.0e+00 | 100% | 17.78 | -17.78 | 0.02931 | 35.58 | 1.0016 | 0
+bunny | 0.0e+00 | 100% | 0.1423 | -0.1423 | 0.0009097 | 0.2855 | 1.0064 | 0
+lucy | 0.0e+00 | 100% | 0.07149 | -0.07149 | 0.0001972 | 0.1432 | 1.0028 | 1
+
+== 3.2 Valores propios de Q ==
+  nefertiti: parte de los vectores nulos fuera de las traslaciones: [0. 0.]
+  malla plana: parte de los vectores nulos fuera de las traslaciones: [0.315 0.92  0.574 0.851]
+malla | tamano Q | ceros | lambda_0 | lambda_1 | lambda_2 | lambda_3 | lambda_4 | lambda_5 | lambda_6 | lambda_7 | vec nulo fuera de traslaciones
+nefertiti | 598 | 2 | -6.44e-16 | 5.21e-16 | 7.75e-05 | 7.75e-05 | 1.86e-03 | 1.86e-03 | 9.69e-03 | 9.69e-03 | 6.6e-12
+malla plana | 450 | 4 | -1.20e-15 | -1.14e-15 | -1.02e-15 | 7.89e-16 | 1.03e-03 | 1.03e-03 | 4.64e-03 | 4.64e-03 | 9.2e-01
+
+== 3.2 Un solo pin (Nefertiti) ==
+  todos los vertices en el pin: max |uv - (0.3, -0.7)| = 1.3e-12
+
+== 3.3 Dependencia de los pins ==
+malla | nb | pins auto (pos) | ED/|A| auto | ED/|A| rango | conf_med rango | area_mean rango | error min | error k=1 | error k=nb/2 | max flips
+nefertiti | 34 | 22,7 | 1.0016 | 1.0016-1.0031 | 1.039-1.048 | 0.21-0.39 | 3.2e-02 | 0.13 | 0.039 | 0
+bunny | 144 | 75,14 | 1.0064 | 1.0062-1.0758 | 1.151-1.159 | 6.01-6.35 | 6.4e-02 | 0.32 | 0.068 | 0
+lucy | 262 | 104,216 | 1.0028 | 1.0033-1.0393 | 1.110-1.118 | 7.22-8.29 | 3.2e-01 | 0.87 | 0.348 | 4

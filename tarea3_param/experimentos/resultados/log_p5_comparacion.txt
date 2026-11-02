@@ -1,0 +1,59 @@
+[polyscope] Backend: openGL3_glfw -- Loaded openGL version: 4.6 (Core Profile) Mesa 26.2.6-arch1.1
+
+== Imagenes de los cuatro metodos ==
+   p5_nefertiti_uniform
+   p5_nefertiti_harmonic
+   p5_nefertiti_meanvalue
+   p5_nefertiti_lscm
+   p5_bunny_uniform
+   p5_bunny_harmonic
+   p5_bunny_meanvalue
+   p5_bunny_lscm
+   p5_lucy_uniform
+   p5_lucy_harmonic
+   p5_lucy_meanvalue
+   p5_lucy_lscm
+
+== 5.1 Orden de los metodos (borde circular, arc) ==
+  nefertiti conforme: lscm < harmonic < meanvalue < uniform
+  nefertiti area:     meanvalue < harmonic < lscm < uniform
+  bunny conforme: lscm < harmonic < meanvalue < uniform
+  bunny area:     uniform < meanvalue < lscm < harmonic
+  lucy conforme: lscm < harmonic < meanvalue < uniform
+  lucy area:     meanvalue < uniform < harmonic < lscm
+malla | metodo | conf_med | conf_p95 | area_mean | flips | degen | ED/|A|
+nefertiti | uniform | 1.538 | 2.700 | 0.580 | 0 | 0 | 1.2174
+nefertiti | harmonic | 1.144 | 1.394 | 0.202 | 0 | 0 | 1.0217
+nefertiti | meanvalue | 1.165 | 1.441 | 0.178 | 0 | 0 | 1.0234
+nefertiti | lscm | 1.038 | 1.201 | 0.219 | 0 | 0 | 1.0016
+bunny | uniform | 1.770 | 3.446 | 4.092 | 0 | 0 | 1.1678
+bunny | harmonic | 1.191 | 1.560 | 6.037 | 0 | 0 | 1.0270
+bunny | meanvalue | 1.268 | 2.105 | 4.629 | 0 | 0 | 1.0333
+bunny | lscm | 1.152 | 1.460 | 6.030 | 0 | 0 | 1.0064
+lucy | uniform | 2.042 | 4.888 | 6.815 | 0 | 184 | 1.4276
+lucy | harmonic | 1.262 | 1.690 | 7.594 | 1 | 1418 | 1.0615
+lucy | meanvalue | 1.402 | 2.856 | 6.740 | 0 | 978 | 1.0733
+lucy | lscm | 1.111 | 1.360 | 8.028 | 1 | 1232 | 1.0028
+
+== 5.2 Distorsion de area vs distancia al borde ==
+malla | metodo | mediana log2 area (d<=0.6) | mediana log2 area (d>0.6) | minimo log2 area | % caras con d>0.6
+nefertiti | uniform | -0.0 | -0.4 | -1.7 | 30%
+nefertiti | harmonic | 0.0 | -0.3 | -1.4 | 30%
+nefertiti | meanvalue | 0.0 | -0.2 | -1.2 | 30%
+nefertiti | lscm | 0.0 | -0.3 | -1.4 | 30%
+bunny | uniform | 3.2 | -6.4 | -9.9 | 27%
+bunny | harmonic | 4.7 | -10.3 | -15.3 | 27%
+bunny | meanvalue | 3.4 | -7.7 | -11.8 | 27%
+bunny | lscm | 4.7 | -10.3 | -15.3 | 27%
+lucy | uniform | 5.2 | -11.3 | -36.8 | 21%
+lucy | harmonic | 5.6 | -13.4 | -36.4 | 21%
+lucy | meanvalue | 5.0 | -11.8 | -36.9 | 21%
+lucy | lscm | 5.7 | -14.5 | -36.7 | 21%
+
+== 5.4 Tiempos en Lucy (mediana de 5 repeticiones, segundos) ==
+  lscm: spsolve (factoriza y resuelve) = 0.107 s
+metodo | pesos | laplaciano | borde / Q | extraer submatrices | factorizacion LU | sustitucion | total parameterize | distortion_report | incognitas
+uniform | 0.063 | 0.001 | 0.0001 | 0.002 | 0.042 | 0.0037 | 0.114 | 0.051 | 13894
+harmonic | 0.015 | 0.001 | 0.0001 | 0.002 | 0.043 | 0.0036 | 0.064 | 0.049 | 13894
+meanvalue | 0.022 | 0.001 | 0.0001 | 0.002 | 0.042 | 0.0036 | 0.073 | 0.052 | 13894
+lscm | 0.014 | 0.001 | 0.0014 | 0.003 | 0.101 | 0.0044 | 0.121 | 0.051 | 28308
