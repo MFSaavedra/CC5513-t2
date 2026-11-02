@@ -10,6 +10,7 @@ venv/
 *.fls
 *.fdb_latexmk
 *.out
+*.toc
 # Polyscope (estado de la ventana)
 .polyscope.ini
 imgui.ini
