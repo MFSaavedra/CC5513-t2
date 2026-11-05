@@ -2,7 +2,8 @@
 % (Pablo Pizarro R., https://latex.ppizarror.com/informe, licencia MIT).
 % template.tex es la versión de un solo archivo del template (dist/) y
 % template_config.tex sus configuraciones; ahí se cambiaron solo el tamaño
-% de letra, los márgenes, el tamaño de los títulos y el índice.
+% de letra, el interlineado, los márgenes (también los de las leyendas), el tamaño
+% de los títulos y el índice.
 %
 % Compilar:  latexmk -pdf informe.tex
 
@@ -54,6 +55,20 @@
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\preg}[1]{\textbf{#1}\enspace}
 \newcommand{\resultados}{../tarea3_param/experimentos/resultados}
+% Menos espacio alrededor de las ecuaciones: el cuerpo tiene un máximo de 5 páginas.
+% Se agrega a \normalsize porque LaTeX restablece estos largos cada vez que lo llama.
+\makeatletter
+\g@addto@macro\normalsize{%
+	\setlength{\abovedisplayskip}{4pt plus 1pt minus 1pt}%
+	\setlength{\belowdisplayskip}{4pt plus 1pt minus 1pt}%
+	\setlength{\abovedisplayshortskip}{2pt plus 1pt}%
+	\setlength{\belowdisplayshortskip}{3pt plus 1pt minus 1pt}%
+}
+\makeatother
+% Por la misma razón, menos espacio entre las figuras o tablas y el texto.
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
 
 % INICIO DE PÁGINAS
 \begin{document}
@@ -73,7 +88,13 @@
 % ======================= INICIO DEL DOCUMENTO =======================
 
 \sectionanum{Implementación}
-\textbf{Pesos (Parte 1).} Ambas funciones tienen un solo ciclo, sobre las 3 esquinas de los triángulos, y generan tripletas $(i,j,w)$ que \code{\_sparse\_from\_triplets} suma. En \code{cotangent\_weights}, el ángulo $\theta_c$ de la esquina $c$ es opuesto a la arista $(F_{c+1},F_{c+2})$ y aporta $\tfrac12\cot\theta_c$ a sus dos entradas de $W$. En \code{mean\_value\_weights}, el ángulo $\gamma$ en $v_i=F_c$ aporta $\tan(\gamma/2)/\|v_i-v_j\|$ a $W_{ij}$ para las dos aristas de la cara que salen de $v_i$. En Lucy cada matriz tarda unos 0.02\,s.
+\textbf{Pesos (Parte 1).} Ambas funciones tienen un solo ciclo, sobre las 3 esquinas de los triángulos, y generan tripletas $(i,j,w)$ que \code{\_sparse\_from\_triplets} suma. En \code{cotangent\_weights}, el ángulo $\theta_c$ de la esquina $c$ es opuesto a la arista $(i,j)=(F_{c+1},F_{c+2})$; en \code{mean\_value\_weights}, el ángulo $\gamma$ en $v_i=F_c$ se usa en las dos aristas $(i,j)$ de la cara que salen de $v_i$. Cada esquina aporta, respectivamente,
+\[
+\Delta W_{ij}=\Delta W_{ji}=\frac12\cot\theta_c
+\qquad\text{y}\qquad
+\Delta W_{ij}=\frac{\tan(\gamma/2)}{\|v_i-v_j\|}.
+\]
+En Lucy cada matriz tarda unos 0.02\,s.
 
 \textbf{Borde poligonal (Parte 2).} \code{polygon\_points} acumula el largo de los lados desde \code{corners[0]}, convierte $t$ en la distancia $s=(t \bmod 1)\,P$ e interpola entre esquinas con \code{np.interp}.
 
@@ -95,7 +116,11 @@ Lucy & 11\,192 (5\,596) & 5\,565 & 31 & 1 \\
 \end{tabular}
 \end{table}
 
-\preg{1.1} \code{neg\_w} es 86, 922 y 11\,192 (Tabla~\ref{tab:p1}); como $W$ es simétrica, son 43, 461 y 5\,596 aristas. Como $\cot\alpha+\cot\beta=\sin(\alpha+\beta)/(\sin\alpha\sin\beta)$, se tiene $D_{ij}<0$ si y solo si $\alpha+\beta>\pi$ (la arista no es localmente Delaunay); en una arista de borde, si $\alpha>\pi/2$. Entonces no se cumple la hipótesis del teorema: $u_i$ deja de ser combinación convexa de sus vecinos y la biyectividad no está garantizada. Con borde circular aparece un triángulo invertido en Lucy, la cara 18\,885 (Fig.~\ref{fig:p12}a, en rojo como en el modo \code{flips}). Esa cara ya está plegada en 3D: los pesos cotangentes reproducen el pliegue y los de valor medio no.
+\preg{1.1} \code{neg\_w} es 86, 922 y 11\,192 (Tabla~\ref{tab:p1}); como $W$ es simétrica, son 43, 461 y 5\,596 aristas. Como
+\[
+D_{ij}=\frac12(\cot\alpha+\cot\beta)=\frac{\sin(\alpha+\beta)}{2\sin\alpha\sin\beta},
+\]
+se tiene $D_{ij}<0$ si y solo si $\alpha+\beta>\pi$ (la arista no es localmente Delaunay); en una arista de borde, si $\alpha>\pi/2$. Entonces no se cumple la hipótesis del teorema: $u_i$ deja de ser combinación convexa de sus vecinos y la biyectividad no está garantizada. Con borde circular aparece un triángulo invertido en Lucy, la cara 18\,885 (Fig.~\ref{fig:p12}a, en rojo como en el modo \code{flips}). Esa cara ya está plegada en 3D: los pesos cotangentes reproducen el pliegue y los de valor medio no.
 
 \begin{figure}[b]
 \centering
@@ -115,9 +140,17 @@ Lucy & 11\,192 (5\,596) & 5\,565 & 31 & 1 \\
 \label{fig:p12}
 \end{figure}
 
-\preg{1.2} En un triángulo no degenerado $0<\gamma,\delta<\pi$, así que $\tan(\gamma/2)$ y $\tan(\delta/2)$ son positivas, y $\|v_i-v_j\|>0$: luego $D_{ij}>0$ siempre (también en el borde, con un solo término). Cada vértice interior queda como combinación convexa estricta de sus vecinos y, con un borde convexo, el teorema garantiza una parametrización biyectiva para cualquier malla (no pide pesos simétricos). En Lucy, valor medio con círculo no tiene flips.
+\preg{1.2} En un triángulo no degenerado $0<\gamma,\delta<\pi$, así que $\tan(\gamma/2)$ y $\tan(\delta/2)$ son positivas, y $\|v_i-v_j\|>0$. Luego
+\[
+D_{ij}=\frac{\tan(\gamma/2)+\tan(\delta/2)}{\|v_i-v_j\|}>0
+\]
+siempre (también en el borde, con un solo término). Cada vértice interior queda como combinación convexa estricta de sus vecinos y, con un borde convexo, el teorema garantiza una parametrización biyectiva para cualquier malla (no pide pesos simétricos). En Lucy, valor medio con círculo no tiene flips.
 
-\preg{1.3} En la prueba, las coordenadas originales $x$ son la solución solo si $\sum_j D_{ij}(x_j-x_i)=0$ en cada vértice interior, es decir, si los pesos reproducen funciones lineales. Los cotangentes lo hacen porque esa suma es la derivada de la energía de Dirichlet, que una función lineal minimiza; los de valor medio se construyen justamente para reproducirlas. Los uniformes exigen que cada vértice sea el centroide de sus vecinos, lo que no se cumple en una malla irregular: error $2.5\cdot10^{-2}$ y \code{conf\_med} 1.53, frente a $10^{-14}$ y 1.00 con los otros dos. Consecuencia práctica: en zonas casi planas, cotangentes y valor medio conservan la forma de los triángulos, mientras que los uniformes los deforman según el muestreo. En el 25\,\% de caras menos curvas, \code{conf\_med} es 1.44/1.90/1.89 con pesos uniformes y 1.13/1.29/1.25 con cotangentes (Nefertiti/Bunny/Lucy).
+\preg{1.3} En la prueba, las coordenadas originales $x$ son la solución solo si
+\[
+\sum_j D_{ij}\,(x_j-x_i)=0\quad\text{en cada vértice interior $i$,}
+\]
+es decir, si los pesos reproducen funciones lineales. Los cotangentes lo hacen porque esa suma es la derivada de la energía de Dirichlet, que una función lineal minimiza; los de valor medio se construyen justamente para reproducirlas. Los uniformes exigen que cada vértice sea el centroide de sus vecinos, lo que no se cumple en una malla irregular: error $2.5\cdot10^{-2}$ y \code{conf\_med} 1.53, frente a $10^{-14}$ y 1.00 con los otros dos. Consecuencia práctica: en zonas casi planas, cotangentes y valor medio conservan la forma de los triángulos, mientras que los uniformes los deforman según el muestreo. En el 25\,\% de caras menos curvas, \code{conf\_med} es 1.44/1.90/1.89 con pesos uniformes y 1.13/1.29/1.25 con cotangentes (Nefertiti/Bunny/Lucy).
 
 \section{Bordes poligonales}
 \preg{2.1} Las 4 caras degeneradas de Bunny son ``orejas'' del borde: triángulos con sus tres vértices consecutivos en el borde de la base (Fig.~\ref{fig:p12}c). Con el cuadrado los tres caen en el mismo lado y quedan colineales, con área 0 para cualquier peso, porque esa cara queda determinada solo por el borde. No contradice el teorema: su versión precisa (Floater 2003) pide que ninguna arista interior tenga ambos extremos en un mismo lado del polígono, y la arista que cierra cada oreja los tiene. Para evitarlo: usar una curva estrictamente convexa (el círculo o el cuadrado abombado del bonus B1), poner una esquina del cuadrado en el vértice central de cada oreja, o dividir esas caras en la malla.
@@ -142,17 +175,28 @@ Lucy & 262 & 0.41 / 11.0 & 1.262 $\to$ 1.339 & 7.594 $\to$ 7.632 & 1.861 $\to$ 2
 \preg{2.3} Con \code{uniform} todas las aristas del borde miden lo mismo en $(u,v)$, así que el estiramiento a lo largo del borde varía tanto como el largo de las aristas 3D (hasta 3.3, 3.0 y 11 veces); con \code{arc} es constante. Por eso \code{uniform} distorsiona las caras del borde y empeora todas las medidas (Tabla~\ref{tab:arc}). La diferencia importa más en Nefertiti (\code{area\_mean} sube 41\,\%): con 34 vértices de borde de 299, la franja del borde es una parte grande de la malla. En Lucy el efecto local es el mayor (\code{conf\_med} del borde 1.86 $\to$ 2.12), pero se diluye en 28\,000 caras, y Bunny, con el borde más regular (cv 0.26), casi no cambia.
 
 \section{Análisis de LSCM}
-\preg{3.1} \code{boundary\_area\_matrix} recorre las aristas $i\to j$ del borde (\code{loop} y \code{np.roll(loop,-1)}) y pone $K_{ij}=\tfrac12$ y $K_{ji}=-\tfrac12$, de modo que $u^TKv=A(u,v)$ (ec.~9). \code{lscm}: (i) elige los pins con \code{choose\_pins} y toma $d=\|v_{p_0}-v_{p_1}\|$; (ii) arma el Laplaciano cotangente $L$, con $\tfrac12u^TLu=E_D(u)$, y la matriz $K$; (iii) forma $Q=\begin{psmallmatrix}L&-K\\K&L\end{psmallmatrix}$, y como $K^T=-K$, $\tfrac12x^TQx=E_D-u^TKv=E_C$ (ec.~8); (iv) fija $p_0\to(0,0)$ y $p_1\to(d,0)$ y resuelve $Q_{ff}x_f=-Q_{fp}x_p$ con \code{spsolve}. Ese sistema es $\nabla_{x_f}E_C=0$, porque $E_C=\tfrac12x_f^TQ_{ff}x_f+x_f^TQ_{fp}x_p+\text{cte}$; como $Q_{ff}$ es definida positiva (3.2), su solución es el mínimo, y es único. Con el borde al revés, $K$ cambia de signo y se minimiza $E_D+A$: la solución es el reflejo exacto $(u,-v)$, con todas las caras invertidas y la textura espejada (verificado en las tres mallas; \code{distortion\_report} igual da 0 flips, porque los cuenta respecto de la orientación dominante).
+\preg{3.1} \code{boundary\_area\_matrix} recorre las aristas $i\to j$ del borde (\code{loop} y \code{np.roll(loop,-1)}) y pone $K_{ij}=\tfrac12$ y $K_{ji}=-\tfrac12$, de modo que $u^TKv=A(u,v)$ (ec.~9). \code{lscm}: (i) elige los pins con \code{choose\_pins} y toma $d=\|v_{p_0}-v_{p_1}\|$; (ii) arma el Laplaciano cotangente $L$, con $\tfrac12u^TLu=E_D(u)$, y la matriz $K$; (iii) forma la matriz $Q$, que con $x=(u,v)$ y $K^T=-K$ da la energía conforme (ec.~8):
+\[
+Q=\begin{pmatrix}L&-K\\K&L\end{pmatrix},\qquad
+\frac12\,x^TQx=E_D-u^TKv=E_C;
+\]
+(iv) fija $p_0\to(0,0)$ y $p_1\to(d,0)$ y resuelve con \code{spsolve} el sistema que anula el gradiente de $E_C$:
+\[
+E_C=\frac12\,x_f^TQ_{ff}\,x_f+x_f^TQ_{fp}\,x_p+\text{cte}
+\quad\Longrightarrow\quad
+\nabla_{x_f}E_C=0\iff Q_{ff}\,x_f=-Q_{fp}\,x_p.
+\]
+Como $Q_{ff}$ es definida positiva (3.2), su solución es el mínimo, y es único. Con el borde al revés, $K$ cambia de signo y se minimiza $E_D+A$: la solución es el reflejo exacto $(u,-v)$, con todas las caras invertidas y la textura espejada (verificado en las tres mallas; \code{distortion\_report} igual da 0 flips, porque los cuenta respecto de la orientación dominante).
 
 \preg{3.2} Los valores propios más pequeños de $Q$ en Nefertiti son $\lambda_{0,1}\approx10^{-16}$ y luego $7.75\cdot10^{-5}$, $1.86\cdot10^{-3}$ y $9.69\cdot10^{-3}$, cada uno doble porque $E_C$ no cambia al rotar el mapa. Los dos ceros son las traslaciones $(1,0)$ y $(0,1)$, que no cambian $E_D$ ni $A$. Con un solo pin desaparecen las traslaciones, pero el mapa constante tiene $E_C=0$, el mínimo posible: todo colapsa al pin (medido: $\max|uv-p|=10^{-12}$). El segundo pin, a distancia $d$, fija la escala y la rotación; dos pins son 4 restricciones, tantas como parámetros tiene una semejanza.
 
 \begin{figure}[t]
 \centering
-\begin{subfigure}[b]{0.56\textwidth}\centering
+\begin{subfigure}[b]{0.52\textwidth}\centering
 \includegraphics[width=\linewidth]{p3_pins.png}
 \caption{Primer pin en la posición 0 y el segundo a lo largo del borde; segmentadas: pins automáticos.}
 \end{subfigure}\hfill
-\begin{subfigure}[b]{0.4\textwidth}\centering
+\begin{subfigure}[b]{0.37\textwidth}\centering
 \includegraphics[width=\linewidth]{p3_pins_bunny.png}
 \caption{Bunny alineado por Procrustes y coloreado por $\sigma_1/\sigma_2$.}
 \end{subfigure}
@@ -163,7 +207,17 @@ Lucy & 262 & 0.41 / 11.0 & 1.262 $\to$ 1.339 & 7.594 $\to$ 7.632 & 1.861 $\to$ 2
 \preg{3.3} La Fig.~\ref{fig:pins}a muestra $E_D/|A|$, \code{conf\_med}, \code{area\_mean} y el error de Procrustes según la posición del segundo pin. El error es la distancia relativa al resultado con pins automáticos, después de alinear ambos con la mejor semejanza (\code{comun.procrustes}). Nunca es cero, así que el resultado sí cambia más allá de una semejanza: en el caso discreto ningún mapa es exactamente conforme, y los pins actúan como fuerzas puntuales que deforman el mapa a su alrededor. Con pins opuestos el error es mínimo (3, 6 y 32\,\% en Nefertiti, Bunny y Lucy); con pins vecinos es grande (13, 32 y 87\,\%), y en Bunny $E_D/|A|$ sube de 1.006 a 1.076 (Fig.~\ref{fig:pins}b). Recomendamos pins lejanos, aproximadamente opuestos en el borde, como los que elige \code{choose\_pins}.
 
 \section{Análisis de las medidas de distorsión}
-\preg{4.1} \code{jacobians} pone cada triángulo en un sistema local isométrico ($q_0=0$, $q_1$ sobre el eje $x$, $q_2$ con $y>0$), forma $Q_m=[q_1-q_0\;\;q_2-q_0]$ y $U_m=[u_1-u_0\;\;u_2-u_0]$ y calcula $J=U_mQ_m^{-1}$ (ec.~10) para todas las caras a la vez. \code{face\_distortion} obtiene los valores singulares de $J$ y devuelve $\sigma_1/\sigma_2$, $\log_2(\sigma_1\sigma_2)$ y $\det J$. Se usa un sistema 2D porque el mapa va del plano del triángulo a $\mathbb{R}^2$: con coordenadas 3D la matriz de aristas sería de $3\times2$ y no se podría invertir. Con otro sistema isométrico, $q'=Rq$ con $R$ ortogonal, se obtiene $J'=JR^T$: $J$ cambia, pero $J'J'^T=JJ^T$ (mismos $\sigma_i$) y $\det J'=\det J\,\det R$ (mismo signo si $R$ es una rotación; el código fija la orientación con $y>0$). Lo verificamos en Bunny: al rotar al azar el sistema de cada cara, $J$ cambia hasta en 3.3 y los $\sigma_i$ menos de $10^{-15}$. Por último, $\det J=A_{uv}/A_{3D}$ con signo: $|\det J|=\sigma_1\sigma_2$ es el cociente de áreas, y $\det J<0$ indica un triángulo invertido.
+\preg{4.1} \code{jacobians} pone cada triángulo en un sistema local isométrico ($q_0=0$, $q_1$ sobre el eje $x$, $q_2$ con $y>0$) y calcula, para todas las caras a la vez (ec.~10),
+\[
+Q_m=\begin{bmatrix}q_1-q_0 & q_2-q_0\end{bmatrix},\qquad
+U_m=\begin{bmatrix}u_1-u_0 & u_2-u_0\end{bmatrix},\qquad
+J=U_m\,Q_m^{-1}.
+\]
+\code{face\_distortion} obtiene los valores singulares de $J$ y devuelve $\sigma_1/\sigma_2$, $\log_2(\sigma_1\sigma_2)$ y $\det J$. Se usa un sistema 2D porque el mapa va del plano del triángulo a $\mathbb{R}^2$: con coordenadas 3D la matriz de aristas sería de $3\times2$ y no se podría invertir. Con otro sistema isométrico, $q'=Rq$ con $R$ ortogonal, se obtiene
+\[
+J'=JR^T,\qquad J'J'^T=JJ^T,\qquad \det J'=\det J\,\det R.
+\]
+Así, $J$ cambia, pero los $\sigma_i$ son los mismos, y $\det J$ conserva su signo si $R$ es una rotación (el código fija la orientación con $y>0$). Lo verificamos en Bunny: al rotar al azar el sistema de cada cara, $J$ cambia hasta en 3.3 y los $\sigma_i$ menos de $10^{-15}$. Por último, $\det J$ es el cociente de áreas con signo: $|\det J|=\sigma_1\sigma_2=A_{uv}/A_{3D}$, y $\det J<0$ indica un triángulo invertido.
 
 \begin{table}[h]
 \centering\small
@@ -175,18 +229,22 @@ mapa & $J$ & \code{conf\_med} & \code{area\_mean} & \code{flips} \\
 \midrule
 (a) rotación 30 grados y escala 2 & $2R$ & 1 / 1.000 & 0 / 0.000 & 0 / 0 \\
 (b) $(x,y)\to(3x,y)$ & $\operatorname{diag}(3,1)$ & 3 / 3.000 & 0 / 0.000 & 0 / 0 \\
-(c) $(x,y)\to(x+0.5y,y)$ & $\begin{psmallmatrix}1&0.5\\0&1\end{psmallmatrix}$ & $\left(\frac{0.5+\sqrt{4.25}}{2}\right)^2=1.640$ / 1.640 & 0 / 0.000 & 0 / 0 \\
+(c) $(x,y)\to(x+0.5y,y)$ & $\begin{psmallmatrix}1&0.5\\0&1\end{psmallmatrix}$ & 1.640 / 1.640 & 0 / 0.000 & 0 / 0 \\
 (d) $(x,y)\to(-x,y)$ & $\operatorname{diag}(-1,1)$ & 1 / 1.000 & 0 / 0.000 & 392 / \textbf{0} \\
 (e) $z\to z^2$, $z=(x+1)+iy$ & $f'(z)=2z$ & 1 / \textbf{1.034} & 0.447 / 0.447 & 0 / 0 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\preg{4.2} Las predicciones coinciden con lo medido salvo en dos casos (Tabla~\ref{tab:p4}). En (d) la reflexión invierte todas las caras, pero \code{distortion\_report} cuenta los flips respecto de la orientación dominante, así que una reflexión global no cuenta. En (e) $z^2$ es conforme, pero su interpolación lineal en cada triángulo no lo es exactamente (\code{conf\_med} 1.034). Además, \code{area\_mean} vale 0 en (a)--(c) aunque el área total cambie, porque el reporte normaliza la escala global; en (e) el área local, $4|z|^2$, sí varía, y el valor medido coincide con la integral exacta (0.447). La Fig.~\ref{fig:p4} muestra el tablero: rectángulos 1:3 en (b), paralelogramos en (c) y cuadrados curvos de tamaño variable en (e).
+\preg{4.2} La predicción de (c) en la Tabla~\ref{tab:p4} sale de $\sigma_1\sigma_2=\det J=1$ y $\sigma_1-\sigma_2=0.5$:
+\[
+\frac{\sigma_1}{\sigma_2}=\left(\frac{0.5+\sqrt{4.25}}{2}\right)^2=1.640.
+\]
+Las predicciones coinciden con lo medido salvo en dos casos. En (d) la reflexión invierte todas las caras, pero \code{distortion\_report} cuenta los flips respecto de la orientación dominante, así que una reflexión global no cuenta. En (e) $z^2$ es conforme, pero su interpolación lineal en cada triángulo no lo es exactamente (\code{conf\_med} 1.034). Además, \code{area\_mean} vale 0 en (a)--(c) aunque el área total cambie, porque el reporte normaliza la escala global; en (e) el área local, $4|z|^2$, sí varía, y el valor medido coincide con la integral exacta (0.447). La Fig.~\ref{fig:p4} muestra el tablero: rectángulos 1:3 en (b), paralelogramos en (c) y cuadrados curvos de tamaño variable en (e).
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.64\textwidth]{p4_experimentos.png}
+\includegraphics[width=0.53\textwidth]{p4_experimentos.png}
 \caption{Experimentos controlados: tablero sobre la malla plana (arriba) y dominio $(u,v)$ (abajo).}
 \label{fig:p4}
 \end{figure}
@@ -196,11 +254,11 @@ La Fig.~\ref{fig:tableros}a resume los cuatro métodos; el Anexo~\ref{anx:mosaic
 
 \begin{figure}[t]
 \centering
-\begin{subfigure}[b]{0.57\textwidth}\centering
+\begin{subfigure}[b]{0.5\textwidth}\centering
 \includegraphics[width=\linewidth]{p5_tableros.png}
 \caption{Tablero sobre la superficie (puntos azules: pins de LSCM).}
 \end{subfigure}\hfill
-\begin{subfigure}[b]{0.4\textwidth}\centering
+\begin{subfigure}[b]{0.36\textwidth}\centering
 \includegraphics[width=\linewidth]{p5_area_vs_distancia.png}
 \caption{Mediana de $\log_2(\sigma_1\sigma_2)$ según la distancia al borde.}
 \end{subfigure}
@@ -228,7 +286,11 @@ lscm & 1.038 (1) & 0.219 (3) & 1.152 (1) & 6.030 (3) & 1.111 (1) & 8.028 (4) \\
 
 \preg{5.1} En distorsión conforme el orden es el mismo en las tres mallas: LSCM $<$ armónico $<$ valor medio $<$ uniforme (Tabla~\ref{tab:orden}). En área el orden cambia: gana valor medio en Nefertiti y Lucy, uniforme en Bunny, y LSCM queda tercero o último. Ningún método gana en ambas. Conservar ángulos y áreas a la vez ($\sigma_1=\sigma_2=1$) es ser una isometría, y una isometría conserva la curvatura de Gauss (Teorema Egregium); como el plano tiene curvatura 0, solo una superficie desarrollable se aplana sin distorsión. En una superficie curva hay que elegir: un mapa conforme lleva toda la distorsión al área.
 
-\preg{5.2} Un mapa conforme solo puede compensar la curvatura cambiando la escala ($\Delta_S\log\sigma=K$). Una protuberancia es como un tubo de perímetro $c$ y largo $\ell$, que se aplana conformemente como un anillo: su extremo se encoge en área como $e^{-4\pi\ell/c}$, exponencialmente con el largo. Los mapas armónicos se comportan igual, y el borde libre de LSCM no ayuda porque el borde está en la base, lejos de orejas, alas y antorcha. La Fig.~\ref{fig:tableros}b lo confirma: el área cae casi linealmente en escala $\log_2$ con la distancia al borde (hasta $2^{-15}$ en Bunny y $2^{-27}$ en Lucy), y más en los métodos más conformes. La pregunta 4.5 citada no existe; usando la Parte 4 (un mapa conforme puede cambiar el área sin límite, como $z^2$), proponemos cortar una costura desde la punta de cada protuberancia hasta el borde, para que pase a ser borde libre (un tubo cortado se aplana sin comprimirse), o dividir la superficie en varias cartas.
+\preg{5.2} Un mapa conforme solo puede compensar la curvatura cambiando la escala ($\Delta_S\log\sigma=K$). Una protuberancia es como un tubo de perímetro $c$ y largo $\ell$, que se aplana conformemente como un anillo, así que el área de su extremo se encoge exponencialmente con el largo:
+\[
+\frac{A_{uv}}{A_{3D}}\sim e^{-4\pi\ell/c}.
+\]
+Los mapas armónicos se comportan igual, y el borde libre de LSCM no ayuda porque el borde está en la base, lejos de orejas, alas y antorcha. La Fig.~\ref{fig:tableros}b lo confirma: el área cae casi linealmente en escala $\log_2$ con la distancia al borde (hasta $2^{-15}$ en Bunny y $2^{-27}$ en Lucy), y más en los métodos más conformes. La pregunta 4.5 citada no existe; usando la Parte 4 (un mapa conforme puede cambiar el área sin límite, como $z^2$), proponemos cortar una costura desde la punta de cada protuberancia hasta el borde, para que pase a ser borde libre (un tubo cortado se aplana sin comprimirse), o dividir la superficie en varias cartas.
 
 \preg{5.3} Elegiríamos LSCM, con borde libre. Es el más conforme en Nefertiti (\code{conf\_med} 1.038, \code{conf\_p95} 1.20), con distorsión de área baja (0.22) y sin flips. En una foto importa sobre todo conservar los ángulos (las proporciones de ojos y boca), y un borde fijo agrega distorsión: \code{conf\_p95} sube a 1.39 con armónico y círculo y a 2.47 con valor medio y cuadrado (Fig.~\ref{fig:foto}). Si hubiera que fijar el borde, usaríamos el círculo con espaciado \code{arc}.
 
@@ -243,11 +305,11 @@ lscm & 1.038 (1) & 0.219 (3) & 1.152 (1) & 6.030 (3) & 1.111 (1) & 8.028 (4) \\
 
 \begin{figure}[tb]
 \centering
-\begin{subfigure}{0.19\textwidth}\centering\includegraphics[height=3.0cm]{b2_lscm_libre_frente.png}\caption{LSCM}\end{subfigure}\hfill
-\begin{subfigure}{0.19\textwidth}\centering\includegraphics[height=3.0cm]{b2_lscm_libre_lado.png}\caption{LSCM}\end{subfigure}\hfill
-\begin{subfigure}{0.2\textwidth}\centering\includegraphics[height=3.0cm]{b2_lscm_libre_uv.png}\caption{foto y $(u,v)$}\end{subfigure}\hfill
-\begin{subfigure}{0.19\textwidth}\centering\includegraphics[height=3.0cm]{b2_harmonic_circle_frente.png}\caption{armónico, círculo}\end{subfigure}\hfill
-\begin{subfigure}{0.19\textwidth}\centering\includegraphics[height=3.0cm]{b2_meanvalue_square_frente.png}\caption{v.\ medio, cuadrado}\end{subfigure}
+\begin{subfigure}{0.19\textwidth}\centering\includegraphics[height=2.5cm]{b2_lscm_libre_frente.png}\caption{LSCM}\end{subfigure}\hfill
+\begin{subfigure}{0.19\textwidth}\centering\includegraphics[height=2.5cm]{b2_lscm_libre_lado.png}\caption{LSCM}\end{subfigure}\hfill
+\begin{subfigure}{0.2\textwidth}\centering\includegraphics[height=2.5cm]{b2_lscm_libre_uv.png}\caption{foto y $(u,v)$}\end{subfigure}\hfill
+\begin{subfigure}{0.19\textwidth}\centering\includegraphics[height=2.5cm]{b2_harmonic_circle_frente.png}\caption{armónico, círculo}\end{subfigure}\hfill
+\begin{subfigure}{0.19\textwidth}\centering\includegraphics[height=2.5cm]{b2_meanvalue_square_frente.png}\caption{v.\ medio, cuadrado}\end{subfigure}
 \caption{Bonus B2: fotografía como textura de Nefertiti.}
 \label{fig:foto}
 \end{figure}
